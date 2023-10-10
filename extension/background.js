@@ -53,19 +53,16 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => __awaiter(void 0, 
                 myTimer[currWebsite] = Date.now() - start_time_bg;
             }
             yield chrome.storage.sync.set({ "timer": myTimer });
-            const res2 = yield chrome.storage.sync.get(['timer']);
-            console.log(res2.timer);
         }
         start_time_bg = Date.now();
         tabLastHostnames[tabId] = currentHostname;
     }
 }));
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => __awaiter(void 0, void 0, void 0, function* () {
-    const res = yield chrome.storage.sync.get(['closedTab']);
+    const res = yield chrome.storage.sync.get(['closedTab', 'timer']);
     let currWebsite = res.closedTab.currentHostname;
     currWebsite = currWebsite.replace("www.", "");
-    const res1 = yield chrome.storage.sync.get(["timer"]);
-    let myTimer = res1.timer || {};
+    let myTimer = res.timer || {};
     if (myTimer[currWebsite]) {
         myTimer[currWebsite] += Date.now() - start_time_bg;
     }
@@ -74,7 +71,23 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => __awaiter(void 0, void 
     }
     yield chrome.storage.sync.set({ "timer": myTimer });
     yield chrome.storage.sync.remove('closedTab');
-    const res2 = yield chrome.storage.sync.get(['timer']);
-    console.log(res2.timer);
     start_time_bg = Date.now();
 }));
+setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield chrome.storage.sync.get(['lastDate']);
+    const currentDate = new Date().toDateString();
+    const lastDate = res['lastDate'];
+    if (!lastDate) {
+        yield chrome.storage.sync.set({ 'lastDate': currentDate });
+    }
+    else {
+        if (currentDate !== lastDate) {
+            const res = yield chrome.storage.sync.get(['oldTimer', "timer"]);
+            let oldTimer = res.oldTimer || [];
+            let timer = res.timer || {};
+            oldTimer.push(timer);
+            console.log(oldTimer);
+            yield chrome.storage.sync.set({ 'lastDate': currentDate, "timer": {}, oldTimer });
+        }
+    }
+}), 3600000);

@@ -10,10 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 console.log("REFdxfzcedsx");
 const getReports = () => __awaiter(void 0, void 0, void 0, function* () {
-    const res = yield chrome.storage.sync.get(['timer']);
+    const res = yield chrome.storage.sync.get(['timer', 'oldTimer']);
     const timer = JSON.stringify(res.timer);
+    const oldTimer = JSON.stringify(res.oldTimer);
     const reportsElem = document.getElementById("reports");
     if (reportsElem)
         reportsElem.innerHTML = timer;
+    const oldReportsElem = document.getElementById("oldResports");
+    if (oldReportsElem) {
+        oldReportsElem.innerHTML = oldTimer;
+    }
 });
 getReports();

@@ -45,8 +45,6 @@ chrome.tabs.onUpdated.addListener(async(tabId, changeInfo, tab) => {
             myTimer[currWebsite] = Date.now() - start_time_bg
         }
         await chrome.storage.sync.set({"timer":myTimer})
-        const res2 = await chrome.storage.sync.get(['timer'])
-        console.log(res2.timer);
     }
     start_time_bg = Date.now()
     tabLastHostnames[tabId] = currentHostname; // Update lastHostname for the current tab
@@ -54,12 +52,11 @@ chrome.tabs.onUpdated.addListener(async(tabId, changeInfo, tab) => {
 });
 
 chrome.tabs.onRemoved.addListener(async(tabId,removeInfo) => {
-    const res = await chrome.storage.sync.get(['closedTab'])
+    const res = await chrome.storage.sync.get(['closedTab','timer'])
     let currWebsite = res.closedTab.currentHostname
     currWebsite = currWebsite.replace("www.","")
     // let closedTabId = res.closedTab.tabId
-    const res1 = await chrome.storage.sync.get(["timer"])
-    let myTimer = res1.timer || {}
+    let myTimer = res.timer || {}
     if(myTimer[currWebsite]){
         myTimer[currWebsite] += Date.now() - start_time_bg
     }else{
@@ -68,7 +65,26 @@ chrome.tabs.onRemoved.addListener(async(tabId,removeInfo) => {
 
     await chrome.storage.sync.set({"timer":myTimer})
     await chrome.storage.sync.remove('closedTab')
-    const res2 = await chrome.storage.sync.get(['timer'])
-    console.log(res2.timer);
     start_time_bg = Date.now()
 })
+
+// Detecting first startup of the day
+
+// This interval will run in every 1hr to check for the new day, and reset the timer
+setInterval(async() => {
+    const res:{[key:string]:string} = await chrome.storage.sync.get(['lastDate'])
+    const currentDate:string = new Date().toDateString()
+    const lastDate: string = res['lastDate']
+    if(!lastDate){
+        await chrome.storage.sync.set({'lastDate':currentDate})
+    }else{
+        if(currentDate !== lastDate){
+            const res = await chrome.storage.sync.get(['oldTimer',"timer"])
+            let oldTimer: [{[key:string]:number}] = res.oldTimer || []
+            let timer: {[key:string]:number} = res.timer || {}
+            oldTimer.push(timer)
+            console.log(oldTimer);            
+            await chrome.storage.sync.set({'lastDate':currentDate,"timer":{},oldTimer})
+        }
+    }
+},3600000)
