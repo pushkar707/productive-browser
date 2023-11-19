@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         if (tabUrl) {
                             const tabHostname = new URL(tabUrl).hostname;
                             console.log(tabHostname);
-                            yield chrome.storage.sync.set({ closedTab: { 'currentHostname': tabHostname, tabId } });
+                            yield chrome.storage.local.set({ closedTab: { 'currentHostname': tabHostname, tabId } });
                         }
                     }
                     catch (_a) {
@@ -40,10 +40,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => __awaiter(void 0, 
     if (changeInfo.url) {
         const currentHostname = new URL(changeInfo.url).hostname;
         console.log(currentHostname);
-        yield chrome.storage.sync.set({ closedTab: { currentHostname, tabId } });
+        yield chrome.storage.local.set({ closedTab: { currentHostname, tabId } });
         const lastHostname = tabLastHostnames[tabId];
         if (lastHostname !== undefined && lastHostname !== currentHostname) {
-            const res1 = yield chrome.storage.sync.get(["timer"]);
+            const res1 = yield chrome.storage.local.get(["timer"]);
             let myTimer = res1.timer || {};
             let currWebsite = lastHostname.replace("www.", "");
             if (myTimer[currWebsite]) {
@@ -52,42 +52,51 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => __awaiter(void 0, 
             else {
                 myTimer[currWebsite] = Date.now() - start_time_bg;
             }
-            yield chrome.storage.sync.set({ "timer": myTimer });
+            yield chrome.storage.local.set({ "timer": myTimer });
         }
         start_time_bg = Date.now();
         tabLastHostnames[tabId] = currentHostname;
     }
 }));
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => __awaiter(void 0, void 0, void 0, function* () {
-    const res = yield chrome.storage.sync.get(['closedTab', 'timer']);
-    let currWebsite = res.closedTab.currentHostname;
-    currWebsite = currWebsite.replace("www.", "");
-    let myTimer = res.timer || {};
-    if (myTimer[currWebsite]) {
-        myTimer[currWebsite] += Date.now() - start_time_bg;
+    const res = yield chrome.storage.local.get(['closedTab', 'timer']);
+    let currWebsite = res.closedTab && res.closedTab.currentHostname;
+    if (currWebsite) {
+        currWebsite = currWebsite.replace("www.", "");
+        let myTimer = res.timer || {};
+        if (myTimer[currWebsite]) {
+            myTimer[currWebsite] += Date.now() - start_time_bg;
+        }
+        else {
+            myTimer[currWebsite] = Date.now() - start_time_bg;
+        }
+        yield chrome.storage.local.set({ "timer": myTimer });
+        yield chrome.storage.local.remove('closedTab');
+        start_time_bg = Date.now();
     }
-    else {
-        myTimer[currWebsite] = Date.now() - start_time_bg;
-    }
-    yield chrome.storage.sync.set({ "timer": myTimer });
-    yield chrome.storage.sync.remove('closedTab');
-    start_time_bg = Date.now();
 }));
 setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
-    const res = yield chrome.storage.sync.get(['lastDate']);
+    const res = yield chrome.storage.local.get(['lastDate']);
     const currentDate = new Date().toDateString();
+    console.log(currentDate);
     const lastDate = res['lastDate'];
+    console.log(lastDate);
     if (!lastDate) {
-        yield chrome.storage.sync.set({ 'lastDate': currentDate });
+        yield chrome.storage.local.set({ 'lastDate': currentDate });
     }
     else {
         if (currentDate !== lastDate) {
-            const res = yield chrome.storage.sync.get(['oldTimer', "timer"]);
+            const res = yield chrome.storage.local.get(['oldTimer', "timer"]);
             let oldTimer = res.oldTimer || [];
             let timer = res.timer || {};
+            if (oldTimer.length >= 7) {
+                oldTimer.shift();
+            }
             oldTimer.push(timer);
             console.log(oldTimer);
-            yield chrome.storage.sync.set({ 'lastDate': currentDate, "timer": {}, oldTimer });
+            yield chrome.storage.local.set({ 'lastDate': currentDate, "timer": {}, oldTimer });
         }
     }
-}), 3600000);
+    const res2 = yield chrome.storage.local.get(['timer']);
+    console.log(res2.timer);
+}), 60000);

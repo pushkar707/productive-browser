@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const getRestrictions = () => __awaiter(void 0, void 0, void 0, function* () {
     const restrictionListElem = document.getElementById("restrictions-list");
     if (restrictionListElem) {
-        const res = yield chrome.storage.sync.get(["restrictions"]);
+        const res = yield chrome.storage.local.get(["restrictions"]);
         const previousRestrictions = res.restrictions;
         if (previousRestrictions && previousRestrictions.length) {
             console.log(previousRestrictions);
@@ -66,7 +66,7 @@ if (saveRestrictionsBtn) {
             restrictions.push({ url, time });
         }
         console.log(restrictions);
-        yield chrome.storage.sync.set({ restrictions });
+        yield chrome.storage.local.set({ restrictions });
         window.alert("Your restrictions have been setup. Click OK to close this tab.");
         window.close();
     }));

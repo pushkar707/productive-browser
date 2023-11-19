@@ -48,7 +48,7 @@ const getTimer = () => __awaiter(void 0, void 0, void 0, function* () {
     let currUrl = yield getHostname();
     currUrl = currUrl.replace("www.", "");
     console.log(currUrl);
-    const res = yield chrome.storage.sync.get(["timer"]);
+    const res = yield chrome.storage.local.get(["timer"]);
     const { timer } = res;
     console.log(res);
     let usedTime = (timer && timer[currUrl]) || 0;

@@ -3,7 +3,7 @@ const getRestrictions = async() => {
     
     const restrictionListElem = document.getElementById("restrictions-list")
     if(restrictionListElem){
-        const res = await chrome.storage.sync.get(["restrictions"])
+        const res = await chrome.storage.local.get(["restrictions"])
         const previousRestrictions = res.restrictions
         if (previousRestrictions && previousRestrictions.length){
             console.log(previousRestrictions);
@@ -60,7 +60,7 @@ if(saveRestrictionsBtn){
             restrictions.push({url,time})
         }
         console.log(restrictions);
-        await chrome.storage.sync.set({restrictions})
+        await chrome.storage.local.set({restrictions})
         window.alert("Your restrictions have been setup. Click OK to close this tab.")
         window.close()
     })  

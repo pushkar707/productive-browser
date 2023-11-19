@@ -1,6 +1,6 @@
 const recordNewTab = async() => {
     const tabHostname = window.location.hostname
-    await chrome.storage.sync.set({closedTab:{'currentHostname':tabHostname,tabId:0}})
+    await chrome.storage.local.set({closedTab:{'currentHostname':tabHostname,tabId:0}})
     console.log("hostname saved");
 }
 recordNewTab()
@@ -31,7 +31,7 @@ if(window.location.hostname === "www.youtube.com"){
 }
 
 const closeRestrictedApps = async () => {
-    const res = await chrome.storage.sync.get("restrictions")
+    const res = await chrome.storage.local.get("restrictions")
     const {restrictions} = res
     let currWebsite = window.location.hostname
     currWebsite = currWebsite.replace("www.","")
@@ -55,7 +55,7 @@ const closeRestrictedApps = async () => {
     if(curr_obj){
         console.log("Hello first time visitor");
         let firstTime = 0
-        const res = await chrome.storage.sync.get(['timer'])
+        const res = await chrome.storage.local.get(['timer'])
         const timer = res.timer || {}
         let firstTimeInterval = setInterval(() => {
             const firstTimeUsed = (timer[currWebsite] || 0) + firstTime
@@ -73,7 +73,7 @@ const closeRestrictedApps = async () => {
                 clearInterval(firstTimeInterval)
                 currentTime = 0
             }else{
-                const res = await chrome.storage.sync.get(['timer'])
+                const res = await chrome.storage.local.get(['timer'])
                 const timer = res.timer || {}
                 intervalId = setInterval(() => {
                 const timeUsed = (timer[currWebsite] || 0) + currentTime
@@ -96,7 +96,7 @@ let start_time = Date.now()
 
 const updateTimer = async(currWebsite=window.location.hostname) => {
     const end_time = Date.now()
-    const res1 = await chrome.storage.sync.get(["timer"])
+    const res1 = await chrome.storage.local.get(["timer"])
     let myTimer = res1.timer || {}
     console.log(res1.timer, "Time: "+ (new Date()).toLocaleTimeString());
     currWebsite = currWebsite.replace("www.","")
@@ -107,7 +107,7 @@ const updateTimer = async(currWebsite=window.location.hostname) => {
         myTimer[currWebsite] = end_time - start_time
     }
     
-    await chrome.storage.sync.set({"timer":myTimer})
+    await chrome.storage.local.set({"timer":myTimer})
 }
 
 

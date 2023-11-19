@@ -45,7 +45,7 @@ const getTimer = async(): Promise<void> => {
     currUrl = currUrl.replace("www.","")
     console.log(currUrl);
     
-    const res = await chrome.storage.sync.get(["timer"])
+    const res = await chrome.storage.local.get(["timer"])
     const {timer} = res
     console.log(res);
     let usedTime : number = (timer && timer[currUrl]) || 0

@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const recordNewTab = () => __awaiter(void 0, void 0, void 0, function* () {
     const tabHostname = window.location.hostname;
-    yield chrome.storage.sync.set({ closedTab: { 'currentHostname': tabHostname, tabId: 0 } });
+    yield chrome.storage.local.set({ closedTab: { 'currentHostname': tabHostname, tabId: 0 } });
     console.log("hostname saved");
 });
 recordNewTab();
@@ -43,7 +43,7 @@ if (window.location.hostname === "www.youtube.com") {
     }, 2500);
 }
 const closeRestrictedApps = () => __awaiter(void 0, void 0, void 0, function* () {
-    const res = yield chrome.storage.sync.get("restrictions");
+    const res = yield chrome.storage.local.get("restrictions");
     const { restrictions } = res;
     let currWebsite = window.location.hostname;
     currWebsite = currWebsite.replace("www.", "");
@@ -66,7 +66,7 @@ const closeRestrictedApps = () => __awaiter(void 0, void 0, void 0, function* ()
     if (curr_obj) {
         console.log("Hello first time visitor");
         let firstTime = 0;
-        const res = yield chrome.storage.sync.get(['timer']);
+        const res = yield chrome.storage.local.get(['timer']);
         const timer = res.timer || {};
         let firstTimeInterval = setInterval(() => {
             const firstTimeUsed = (timer[currWebsite] || 0) + firstTime;
@@ -85,7 +85,7 @@ const closeRestrictedApps = () => __awaiter(void 0, void 0, void 0, function* ()
                 currentTime = 0;
             }
             else {
-                const res = yield chrome.storage.sync.get(['timer']);
+                const res = yield chrome.storage.local.get(['timer']);
                 const timer = res.timer || {};
                 intervalId = setInterval(() => {
                     const timeUsed = (timer[currWebsite] || 0) + currentTime;
@@ -104,7 +104,7 @@ closeRestrictedApps();
 let start_time = Date.now();
 const updateTimer = (currWebsite = window.location.hostname) => __awaiter(void 0, void 0, void 0, function* () {
     const end_time = Date.now();
-    const res1 = yield chrome.storage.sync.get(["timer"]);
+    const res1 = yield chrome.storage.local.get(["timer"]);
     let myTimer = res1.timer || {};
     console.log(res1.timer, "Time: " + (new Date()).toLocaleTimeString());
     currWebsite = currWebsite.replace("www.", "");
@@ -115,7 +115,7 @@ const updateTimer = (currWebsite = window.location.hostname) => __awaiter(void 0
     else {
         myTimer[currWebsite] = end_time - start_time;
     }
-    yield chrome.storage.sync.set({ "timer": myTimer });
+    yield chrome.storage.local.set({ "timer": myTimer });
 });
 document.addEventListener("visibilitychange", () => __awaiter(void 0, void 0, void 0, function* () {
     if (document.hidden) {
