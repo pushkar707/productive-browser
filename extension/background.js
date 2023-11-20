@@ -89,6 +89,11 @@ setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
             const res = yield chrome.storage.local.get(['oldTimer', "timer"]);
             let oldTimer = res.oldTimer || [];
             let timer = res.timer || {};
+            Object.keys(timer).forEach(site => {
+                if (timer[site] < 5000) {
+                    delete timer[site];
+                }
+            });
             if (oldTimer.length >= 7) {
                 oldTimer.shift();
             }

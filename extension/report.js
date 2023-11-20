@@ -8,17 +8,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-console.log("REFdxfzcedsx");
 const getReports = () => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield chrome.storage.local.get(['timer', 'oldTimer']);
-    const timer = JSON.stringify(res.timer);
-    const oldTimer = JSON.stringify(res.oldTimer);
+    const timer = res.timer;
+    const table = timerToTable(timer);
     const reportsElem = document.getElementById("reports");
     if (reportsElem)
-        reportsElem.innerHTML = timer + '<br><br>';
+        reportsElem.append(table);
+    const oldTimer = res.oldTimer;
     const oldReportsElem = document.getElementById("oldReports");
     if (oldReportsElem) {
-        oldReportsElem.innerHTML = oldTimer + '<br><br>';
+        oldTimer.forEach((timer) => {
+            const table = timerToTable(timer);
+            oldReportsElem.append(table);
+        });
     }
 });
 getReports();
+const timerToTable = (timer) => {
+    const table = document.createElement("table");
+    table.classList.add("table", "mx-auto", "w-75");
+    table.innerHTML = `
+    <thead>
+        <tr>
+            <th scope="col">Sno.</th>
+            <th scope="col">Website</th>
+            <th scope="col">Time Used</th>
+        </tr>
+    </thead>
+    `;
+    Object.keys(timer).forEach((site, index) => {
+        table.insertAdjacentHTML("beforeend", `<tr>
+            <td>${index + 1}</td>
+            <td>${site}</td>
+            <td>${millisecondsToTime(timer[site])}</td>
+        </tr>`);
+    });
+    return table;
+};

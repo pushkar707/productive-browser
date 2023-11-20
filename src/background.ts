@@ -86,6 +86,11 @@ setInterval(async() => {
             const res = await chrome.storage.local.get(['oldTimer',"timer"])
             let oldTimer: [{[key:string]:number}] = res.oldTimer || []
             let timer: {[key:string]:number} = res.timer || {}
+            Object.keys(timer).forEach(site => {
+                if(timer[site] < 5000){
+                    delete timer[site]
+                }
+            })
             if(oldTimer.length >= 7){
                 oldTimer.shift()
             }
@@ -95,5 +100,5 @@ setInterval(async() => {
         }
     }
     const res2 = await chrome.storage.local.get(['timer'])
-    console.log(res2.timer);    
+    console.log(res2.timer);
 },60000)
