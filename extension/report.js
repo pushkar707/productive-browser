@@ -12,15 +12,19 @@ const getReports = () => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield chrome.storage.local.get(['timer', 'oldTimer']);
     const timer = res.timer;
     const table = timerToTable(timer);
+    const p = timePara();
     const reportsElem = document.getElementById("reports");
-    if (reportsElem)
-        reportsElem.append(table);
+    if (reportsElem) {
+        reportsElem.append(p, table);
+    }
     const oldTimer = res.oldTimer;
     const oldReportsElem = document.getElementById("oldReports");
     if (oldReportsElem) {
-        oldTimer.forEach((timer) => {
+        oldTimer.forEach((timer, index) => {
             const table = timerToTable(timer);
-            oldReportsElem.append(table);
+            table.classList.add("mb-5");
+            const p = timePara(index + 1);
+            oldReportsElem.append(p, table);
         });
     }
 });
@@ -45,4 +49,16 @@ const timerToTable = (timer) => {
         </tr>`);
     });
     return table;
+};
+const date = (when = 0) => {
+    let date = new Date();
+    date.setDate(date.getDate() - when);
+    date = date.toString();
+    return date.slice(0, 15);
+};
+const timePara = (when = 0) => {
+    const p = document.createElement("p");
+    p.classList.add("text-center", "my-3");
+    p.innerText = date(when);
+    return p;
 };

@@ -2,17 +2,23 @@ const getReports = async()  => {
     const res = await chrome.storage.local.get(['timer','oldTimer'])
     const timer = res.timer
     const table = timerToTable(timer)
+    const p = timePara()
     
     const reportsElem = document.getElementById("reports")
-    if(reportsElem)
-        reportsElem.append(table)
+    if(reportsElem){
+        reportsElem.append(p,table)
+        // reportsElem.append(table)
+    }
 
     const oldTimer = res.oldTimer
     const oldReportsElem = document.getElementById("oldReports")
     if(oldReportsElem){
-        oldTimer.forEach((timer:{[key:string]:number}) => {
+        oldTimer.forEach((timer:{[key:string]:number},index:number) => {
             const table = timerToTable(timer)
-            oldReportsElem.append(table)
+            table.classList.add("mb-5")
+            const p = timePara(index+1)
+            oldReportsElem.append(p,table)
+            // oldReportsElem.append(table)
         })
     }
 }
@@ -45,4 +51,18 @@ const timerToTable = (timer:{[key:string]:number}) => {
     })
 
     return table
+}
+
+const date = (when:number = 0) => {
+    let date:Date | string = new Date()
+    date.setDate(date.getDate() - when)
+    date = date.toString()
+    return date.slice(0,15)
+}
+
+const timePara = (when:number = 0) => {
+    const p = document.createElement("p")
+    p.classList.add("text-center","my-3")
+    p.innerText = date(when)
+    return p
 }
